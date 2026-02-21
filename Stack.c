@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <Stack.h>
+#include "Stack.h"
 #include <string.h>
 
 void stack_init(Stack *s, int capacity, size_t elemsize)
