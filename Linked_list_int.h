@@ -21,3 +21,5 @@ int list_is_empty(LinkedList_int *);
 void list_free(LinkedList_int *);
 Node *list_find(LinkedList_int *, int value);
 int list_insert_after(LinkedList_int *, int , int);
+int list_delete_after(LinkedList_int *, int);
+int list_delete_value(LinkedList_int *, int);

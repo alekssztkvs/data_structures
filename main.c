@@ -34,8 +34,10 @@ int main(void)
     
     printf("|deleted: %d\n", check);
     putchar('\n');
-    list_pop_front(&list, &check);
+    //list_pop_front(&list, &check);
     list_insert_after(&list, 2, 99);
+    if(list_delete_after(&list, 2))
+         printf("Deleted\n");
     for (Node *p = list.head; p!=NULL; p = p->next)
         printf("%d\t", p->data);
     printf("|deleted: %d\n", check);

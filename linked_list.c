@@ -135,6 +135,7 @@ int list_insert_after(LinkedList_int *list, int pos, int value)
     n->data = value;
     n->next = curr->next;
     curr->next = n;
+    list->size++;
 
     return 1;
 
@@ -142,31 +143,86 @@ int list_insert_after(LinkedList_int *list, int pos, int value)
 
 int list_insert_at(LinkedList_int *list, int pos, int value)
 {
-    if (list->head == NULL)
+    if (pos < 1)
         return 0;
-    Node *curr = list->head;
-    Node *prev;
 
+    if (pos == 1)
+        return list_push_front(list, value);
+
+    Node *curr = list->head;
+    Node *prev = NULL;
     int count = 1;
-    while (count != pos)
+
+    while (curr != NULL && count < pos)
     {
-        if (curr == NULL)
-            return 0;
         prev = curr;
         curr = curr->next;
         count++;
     }
-    Node *n = (Node *)malloc(sizeof(*n)); //after pos is found
 
-    if (curr ->next == NULL)
-    {
-        list_push_back(list, value);
-        return 1;
-    }
+    if (count != pos)
+        return 0;
+
+    Node *n = malloc(sizeof(*n));
+    if (!n) return 0;
+
     n->data = value;
-    prev->next = n;
     n->next = curr;
+    prev->next = n;
+
+    list->size++;
+    return 1;
+}
+
+int list_delete_after(LinkedList_int *list, int pos)
+{
+    if(list->head == NULL)
+        return 0;
+
+    Node *curr = list->head;
+    int count = 1;
     
+    while (curr != NULL && count < pos)
+    {
+        curr = curr->next;
+        count++;
+    }
+    if (curr == NULL || curr->next == NULL)
+        return 0;
+
+    Node *temp = curr->next;
+    curr->next = temp->next;
+    free(temp);
+   
+    list->size--;
+
+    return 1;
+
+}
+
+int list_delete_value(LinkedList_int *list, int value)
+{
+    if (list->head == NULL)
+        return 0;
+    Node *curr = list->head;
+    Node *prev = NULL;
+
+    while(curr != NULL && curr->data != value)
+    {
+        prev = curr;
+        curr = curr->next;
+    }
+    if (curr == NULL)
+        return 0; // not found
+
+    if (prev == NULL)
+        list->head=curr->next;
+    else
+        prev->next = curr->next;
+
+    free(curr);
+    list->size--;
+
     return 1;
 
 }
