@@ -1,3 +1,4 @@
+#include <stddef.h>
 
 typedef struct Stack
 {
@@ -13,3 +14,4 @@ int stack_pop(Stack *, void *);
 int stack_peek(Stack *, void *);
 int stack_is_empty(const Stack *);
 int stack_is_full(const Stack *);
+void stack_free(Stack *);
