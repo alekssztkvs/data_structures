@@ -2,27 +2,43 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-void list_init(LinkedList_int *list)
+void list_init(LinkedList *list)
 {
     list->size = 0;
     list -> head = NULL;
-
 }
-int list_push_front(LinkedList_int *list, int value )
+int list_push_front(LinkedList *list, void *value, size_t size )
 {
-    Node *n= (Node *)malloc(sizeof(*n));
+    Node *n = malloc(sizeof(*n));
+    if (!n) return 0;
+
+    n->data = malloc(size);
+    if (!n->data) { free(n); return 0; }
+
+    memcpy(n->data, value, size);
+    n->elem_size = size;
     n->next = list->head;
-    n->data = value;
     list->head = n;
     list->size++;
+
     return 1;
 }
-int list_push_back(LinkedList_int *list, int value )
+int list_push_back(LinkedList *list, void *value, size_t size )
 {
     Node *n = (Node *)malloc(sizeof(*n));
     if(!n) return 0;
-    n->data = value;
+    n->data = malloc(size);
+    if(!n->data)
+    {
+        free(n);
+        return 0;
+    }
+
+    memcpy(n->data, value, size);
+    n->elem_size = size;
+
     n->next = NULL;
 
     if(list->head == NULL)
@@ -38,19 +54,10 @@ int list_push_back(LinkedList_int *list, int value )
     return 1;
 }
 
-int list_pop_back(LinkedList_int *list, int *out)
+int list_pop_back(LinkedList *list, void *out)
 {
     if(list->head == NULL)
         return 0;
-
-    if (list->head->next == NULL)
-    {
-        *out = list->head->data;
-        free(list->head);
-        list->head = NULL;
-        list->size--;
-        return 1;
-    }
 
     Node *curr = list->head;
     Node *prev = NULL;
@@ -59,32 +66,41 @@ int list_pop_back(LinkedList_int *list, int *out)
         prev = curr;
         curr = curr->next;
     }
-    *out = curr->data;
+
+    if (out != NULL)
+        memcpy(out, curr->data, curr->elem_size);
+    free(curr->data);
     free(curr);
-    prev->next = NULL;
+    if(prev)
+        prev->next = NULL;
+    else
+        list->head = NULL;
+    
     list->size--;
     return 1;
 }
 
-int list_pop_front(LinkedList_int *list, int *out)
+int list_pop_front(LinkedList *list, void *out)
 {
     if(list->head == NULL)
         return 0;
     
     Node *temp = list->head;
-    *out = temp->data;
+    if(out != NULL)
+        memcpy(out, temp->data, temp->elem_size);
     list->head = temp->next;
+    free(temp->data);
     free(temp);
     list->size--;
     
     return 1;
 }
 
-int list_is_empty(LinkedList_int *list)
+int list_is_empty(LinkedList *list)
 {
     return list->head == NULL;
 }
-void list_free(LinkedList_int *list)
+void list_free(LinkedList *list)
 {
     Node *curr = list->head;
     Node *temp;
@@ -95,26 +111,31 @@ void list_free(LinkedList_int *list)
     {
         temp = curr;
         curr = curr->next;
-        free(temp);
+        free(temp->data);
+        free(temp);  
     }
     list->head = NULL;
     list->size = 0;
 
 }
 
-Node *list_find(LinkedList_int *list, int value)
+Node *list_find(LinkedList *list, void  *value)
 {
     Node *p = list->head;
+
+    if (value == NULL)
+        return NULL;
+    
     while(p != NULL)
     {
-        if (p->data == value)
+        if (memcmp(p->data, value, p->elem_size)==0)
             return p;
         p = p->next;
     }
     return NULL;
 }
 
-int list_insert_after(LinkedList_int *list, int pos, int value)
+int list_insert_after(LinkedList *list, int pos, void *value, size_t size)
 {
     if (list->head == NULL)
         return 0;
@@ -132,7 +153,11 @@ int list_insert_after(LinkedList_int *list, int pos, int value)
     Node *n = (Node *)malloc(sizeof(*n)); //after pos is found
     if (!n) return 0;
 
-    n->data = value;
+    n->data = malloc(size);
+    if (!n->data) { free(n); return 0; }
+    memcpy(n->data, value, size);
+    n->elem_size = size;
+
     n->next = curr->next;
     curr->next = n;
     list->size++;
@@ -141,13 +166,13 @@ int list_insert_after(LinkedList_int *list, int pos, int value)
 
 }
 
-int list_insert_at(LinkedList_int *list, int pos, int value)
+int list_insert_at(LinkedList *list, int pos, void *value, size_t size)
 {
     if (pos < 1)
         return 0;
 
     if (pos == 1)
-        return list_push_front(list, value);
+        return list_push_front(list, value, size);
 
     Node *curr = list->head;
     Node *prev = NULL;
@@ -166,7 +191,11 @@ int list_insert_at(LinkedList_int *list, int pos, int value)
     Node *n = malloc(sizeof(*n));
     if (!n) return 0;
 
-    n->data = value;
+    n->data = malloc(size);
+    if (!n->data) { free(n); return 0; }
+    memcpy(n->data, value, size);
+    n->elem_size = size;
+
     n->next = curr;
     prev->next = n;
 
@@ -174,7 +203,7 @@ int list_insert_at(LinkedList_int *list, int pos, int value)
     return 1;
 }
 
-int list_delete_after(LinkedList_int *list, int pos)
+int list_delete_after(LinkedList *list, int pos)
 {
     if(list->head == NULL)
         return 0;
@@ -192,6 +221,7 @@ int list_delete_after(LinkedList_int *list, int pos)
 
     Node *temp = curr->next;
     curr->next = temp->next;
+    free(temp->data);
     free(temp);
    
     list->size--;
@@ -200,14 +230,14 @@ int list_delete_after(LinkedList_int *list, int pos)
 
 }
 
-int list_delete_value(LinkedList_int *list, int value)
+int list_delete_value(LinkedList *list, void *value)
 {
     if (list->head == NULL)
         return 0;
     Node *curr = list->head;
     Node *prev = NULL;
 
-    while(curr != NULL && curr->data != value)
+    while(curr != NULL && (memcmp(curr->data,value, curr->elem_size)) != 0)
     {
         prev = curr;
         curr = curr->next;
@@ -220,6 +250,7 @@ int list_delete_value(LinkedList_int *list, int value)
     else
         prev->next = curr->next;
 
+    free(curr->data);
     free(curr);
     list->size--;
 
