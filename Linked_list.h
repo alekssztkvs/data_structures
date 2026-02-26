@@ -26,3 +26,4 @@ int list_insert_after(LinkedList *, int , void *, size_t);
 int list_delete_after(LinkedList *, int);
 int list_delete_value(LinkedList *, void *);
 int list_insert_at(LinkedList *, int , void *, size_t);
+int list_print(LinkedList *, void (*)(void *));

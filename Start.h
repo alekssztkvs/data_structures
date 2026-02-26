@@ -1,7 +1,7 @@
 #include "Stack_actions.h"
+#include "Linked_list_actions.h"
 
 void start();
 void queue();
-void s_llist();
 int safe_int_input(int *);
 

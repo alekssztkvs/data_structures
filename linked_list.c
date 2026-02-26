@@ -1,4 +1,5 @@
-#include "Linked_list_int.h"
+#include "Linked_list.h"
+#include "callback.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -254,6 +255,21 @@ int list_delete_value(LinkedList *list, void *value)
     free(curr);
     list->size--;
 
+    return 1;
+
+}
+
+int list_print(LinkedList *list, void (*print_func)(void *))
+{
+    Node *curr = list->head;
+    if (curr == NULL)
+        return 0;
+    
+    while(curr != NULL)
+    {
+        print_func(curr->data);
+        curr = curr->next;
+    }
     return 1;
 
 }

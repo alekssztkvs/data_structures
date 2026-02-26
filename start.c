@@ -32,8 +32,3 @@ void queue()
 {
     
 }
-
-void s_llist()
-{
-
-}
